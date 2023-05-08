@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Decrypt Secrets</title>
+</head>
+<body>
+	<h1>Decrypt Secrets</h1>
+	<form method="POST" action="decrypt.php">
+		<label for="passcode">Passcode:</label>
+		<input type="password" id="passcode" name="passcode">
+		<br><br>
+		<input type="submit" value="Decrypt">
+	</form>
+
+
+    <?php
+// Get the passcode value from the POST request
+$passcode = $_POST["passcode"];
+
+// Define the name of the file containing the encrypted data
+$filename = "secrets.json";
+
+// Define a key for decrypting the file (replace with the same secure key used for encryption)
+$key = "my-secret-key";
+
+// Get the contents of the file as a string
+$contents = file_get_contents($filename);
+
+// Remove any newline characters at the end of the string
+$contents = trim($contents);
+
+// Decode the JSON string into an array
+$data = json_decode($contents, true);
+
+// Decrypt the email, password, and date/time using OpenSSL
+$decrypted_email = openssl_decrypt($data["Encrypted Email"], "AES-256-CBC", $key);
+$decrypted_password = openssl_decrypt($data["Encrypted Password"], "AES-256-CBC", $key);
+$decrypted_date = openssl_decrypt($data["Encrypted Date/Time"], "AES-256-CBC", $key);
+
+// Check if the passcode is correct
+if ($passcode === "my-passcode") {
+	// If the passcode is correct, display the decrypted data in a table
+	echo "<table>";
+	echo "<tr><th>Field</th><th>Value</th></tr>";
+	echo "<tr><td>Email</td><td>$decrypted_email</td></tr>";
+	echo "<tr><td>Password</td><td>$decrypted_password</td></tr>";
+	echo "<tr><td>Date/Time</td><td>$decrypted_date</td></tr>";
+	echo "</table>";
+} else {
+	// If the passcode is incorrect, display an error message
+	echo "Incorrect passcode. Please try again.";
+}
+?>
+</body>
+</html>
